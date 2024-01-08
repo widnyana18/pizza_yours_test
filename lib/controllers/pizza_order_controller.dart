@@ -3,7 +3,9 @@ import 'package:pizza_yours_test/model/pizza.dart';
 import 'package:pizza_yours_test/views/pizza_orders_page.dart';
 
 class PizzaOrderController with ChangeNotifier {
-  PizzaOrderController._sharedInstance();
+  PizzaOrderController._sharedInstance() {
+    calculatePrice;
+  }
 
   static final _shared = PizzaOrderController._sharedInstance();
 
@@ -36,15 +38,22 @@ class PizzaOrderController with ChangeNotifier {
 
   void handleToppingCheckbox({int? toppingId, bool newValue = false}) {
     List<int> selectedToppings = _selectedPizza.toppingList;
-    int currectToppings = 0;
+
     for (var topping in toppings) {
       if (toppingId == topping.id) {
         topping.checked = newValue;
-        selectedToppings.add(topping.id!);
-        currectToppings += topping.price;
+
+        if (topping.checked) {
+          selectedToppings.add(topping.id!);
+          toppingsPrice += topping.price;
+        } else {
+          if (selectedToppings.contains(topping.id)) {
+            selectedToppings.remove(topping.id!);
+            toppingsPrice -= topping.price;
+          }
+        }
       }
     }
-    toppingsPrice = currectToppings;
     notifyListeners();
   }
 
@@ -61,7 +70,6 @@ class PizzaOrderController with ChangeNotifier {
       }
     }
     toppingsPrice = currectToppings;
-    notifyListeners();
   }
 
   void calculatePrice() {
